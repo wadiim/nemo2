@@ -76,7 +76,6 @@ def run(lines):
 	points = max_points = 0
 	if not lines: return
 	for line in lines:
-		if not line: continue
 		text, translations = parse_line(line)
 		try: answer = input(text + ' - ')
 		except EOFError:
@@ -133,12 +132,12 @@ def fileinput(*files):
 		for file in files:
 			if file == '-':
 				for line in sys.stdin.readlines():
-					yield line
+					if line.strip(): yield line
 				sys.stdin = get_console_descriptor()
 			else:
 				with open(file, 'r') as f:
 					for line in f:
-						yield line
+						if line.strip(): yield line
 	except IOError as e:
 		sys.stderr.write("{0}: '{1}'\n".format(e.strerror, file))
 		raise e
