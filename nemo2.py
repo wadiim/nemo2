@@ -134,11 +134,7 @@ def fileinput(*files):
 			if file == '-':
 				for line in sys.stdin.readlines():
 					yield line
-				try:
-					sys.stdin = open("/dev/tty")
-				except IOError:
-					concp = 'cp{}'.format(ctypes.windll.kernel32.GetConsoleCP())
-					sys.stdin = open('con', encoding=concp)
+				sys.stdin = get_console_descriptor()
 			else:
 				with open(file, 'r') as f:
 					for line in f:
@@ -146,6 +142,15 @@ def fileinput(*files):
 	except IOError as e:
 		sys.stderr.write("{0}: '{1}'\n".format(e.strerror, file))
 		raise e
+
+def get_console_descriptor():
+	console = None
+	try:
+		console = open("/dev/tty")
+	except IOError:
+		concp = 'cp{}'.format(ctypes.windll.kernel32.GetConsoleCP())
+		console = open('con', encoding=concp)
+	return console
 
 def parse_args():
 	parser = argparse.ArgumentParser()
