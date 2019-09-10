@@ -5,7 +5,7 @@ Nemo2 is a command-line program for learning foreign languages.
 ## Usage
 
 ``` shell
-./nemo2.py [options] [file...]
+nemo2.py [options] [file...]
 ```
 
 It reads any number of word lists and tests your knowledge of them. If no file is specified then `nemo2.py` reads from the standard input.
@@ -20,7 +20,23 @@ Option | Meaning |
 
 ### Syntax
 
-To separate text from its translation(s) use `-`. Translations can be separated using `|` character. To make a part of translation optional, enclose it in parentheses. To turn off special meaning off `-`, `|`, `(` and `)` characters, precede them by backslash. Whitespaces around `-` and `|` have no effect. Also leading and trailing whitespaces are ignored. Multiple spaces are treated as a single one.
+To separate text from its translation(s) use `-`. Translations can be separated using `|` character.
+```
+elite - leet | l33t | 1337 | 31337
+```
+To make a part of translation optional, enclose it in parentheses.
+```
+own - pwn(age)
+```
+If the translations are mostly overlapping, merge them into one translation, enclose in square brackets the part of it which varies and separate alternations by `|`.
+```
+hacks - h[a|4]x
+```
+To turn off special meaning of `-`, `|`, `(` and `)` characters, precede them by backslash. When there are multiple non escaped hyphens, only the first one is treated specially.
+```
+hacker - H4X0R3r | \|-\|4x0.-
+```
+Whitespaces around `-` and `|` have no effect. Also leading and trailing whitespaces are ignored. Multiple spaces are treated as a single one.
 
 ## License
 
