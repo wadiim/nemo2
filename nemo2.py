@@ -22,8 +22,38 @@ def split_line(line):
 	return text, translations
 
 def split_translations(string):
-	trans = parse_optional(re.split(r'(?<!\\)\|', string))
+	alters = parse_substring_alternations(string)
+	trans = []
+	for alter in alters:
+		trans += parse_optional(re.split(r'(?<!\\)\|', alter))
 	return [i.strip().replace('  ', ' ') for i in trans]
+
+def parse_substring_alternations(string):
+	seq, i = [string], 0
+	while i < len(seq):
+		beg, end = find_square_brackets_pair(seq[i])
+		if beg == -1 or end == -1:
+			i += 1
+			continue
+		alters = split_alternations(seq[i][beg+1:end])
+		for j in range(len(alters)):
+			seq.insert(i+j+1, seq[i][:beg] + alters[j] + seq[i][end+1:])
+		del seq[i]
+	return seq
+
+def split_alternations(string):
+	alters = []
+	begin = ratio = 0
+	for i in range(len(string)):
+		if i and string[i-1] == '\\': continue
+		elif string[i] == '[': ratio += 1
+		elif string[i] == ']': ratio -= 1
+		elif string[i] == '|':
+			if ratio: continue
+			alters.append(string[begin:i])
+			begin = i + 1
+	alters.append(string[begin:])
+	return alters
 
 def parse_optional(seq):
 	i, seqlen = 0, len(seq)
@@ -75,7 +105,7 @@ def remove_brackets(string, f, s):
 	return string[:f] + string[f+1:s] + string[s+1:]
 
 def decode_string(string):
-	for c in '-|()': string = string.replace('\\' + c, c)
+	for c in '-|()[]': string = string.replace('\\' + c, c)
 	return string
 
 def run(lines):

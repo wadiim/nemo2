@@ -60,6 +60,27 @@ class ParseLineTest(unittest.TestCase):
 	def test_pipe_inside_brackets(self):
 		self.assertEqual(parse_line('foo-(bar|baz)'), ('foo', ['(bar', 'baz)']))
 
+	def test_substr_alternation_with_single_argument(self):
+		self.assertEqual(parse_line('foo-b[a]r'), ('foo', ['bar']))
+
+	def test_substr_alternation_without_closing_bracket(self):
+		self.assertEqual(parse_line('foo-b[ar'), ('foo', ['b[ar']))
+
+	def test_substr_alternation_without_opening_bracket(self):
+		self.assertEqual(parse_line('foo-ba]r'), ('foo', ['ba]r']))
+
+	def test_multiple_substr_alternations(self):
+		self.assertEqual(parse_line('foo-ba[r|z]'), ('foo', ['bar', 'baz']))
+
+	def test_nested_substr_alternations(self):
+		self.assertEqual(parse_line('-$[x[1|2]|y]'), ('', ['$x1', '$x2', '$y']))
+
+	def test_optional_inside_substr_alternation(self):
+		self.assertEqual(parse_line('-*[f(x)|y]'), ('', ['*f', '*fx', '*y']))
+
+	def test_escaped_square_brackets(self):
+		self.assertEqual(parse_line('f\[x\]-g\[x\]'), ('f[x]', ['g[x]']))
+
 class FindBracketsPairTest(unittest.TestCase):
 
 	def test_empty_string(self):
