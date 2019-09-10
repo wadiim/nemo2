@@ -1,4 +1,4 @@
-from nemo2 import parse_line, find_brackets_pair, split_optional
+from nemo2 import *
 import unittest
 
 class ParseLineTest(unittest.TestCase):
@@ -63,31 +63,34 @@ class ParseLineTest(unittest.TestCase):
 class FindBracketsPairTest(unittest.TestCase):
 
 	def test_empty_string(self):
-		self.assertEqual(find_brackets_pair(''), (-1, -1))
+		self.assertEqual(find_parentheses_pair(''), (-1, -1))
 
 	def test_lack_of_brackets(self):
-		self.assertEqual(find_brackets_pair('foo'), (-1, -1))
+		self.assertEqual(find_parentheses_pair('foo'), (-1, -1))
 
 	def test_lack_of_right_bracket(self):
-		self.assertEqual(find_brackets_pair('f(x'), (1, -1))
+		self.assertEqual(find_parentheses_pair('f(x'), (1, -1))
 	
 	def test_lack_of_left_bracket(self):
-		self.assertEqual(find_brackets_pair('fx)'), (-1, 2))
+		self.assertEqual(find_parentheses_pair('fx)'), (-1, 2))
 
 	def test_single_pair_of_brackets(self):
-		self.assertEqual(find_brackets_pair('f(x)'), (1, 3))
+		self.assertEqual(find_parentheses_pair('f(x)'), (1, 3))
 
 	def test_multiple_pairs_of_brackets(self):
-		self.assertEqual(find_brackets_pair('f(x)(y)(z)'), (1, 3))
+		self.assertEqual(find_parentheses_pair('f(x)(y)(z)'), (1, 3))
 	
 	def test_nested_brackets(self):
-		self.assertEqual(find_brackets_pair('f(g(h(x)))'), (1, 9))
+		self.assertEqual(find_parentheses_pair('f(g(h(x)))'), (1, 9))
 
 	def test_swapped_brackets(self):
-		self.assertEqual(find_brackets_pair('f)x('), (3, -1))
+		self.assertEqual(find_parentheses_pair('f)x('), (3, -1))
 
 	def test_mismatched_brackets(self):
-		self.assertEqual(find_brackets_pair('f)(x)'), (2, 4))
+		self.assertEqual(find_parentheses_pair('f)(x)'), (2, 4))
+	
+	def test_square_brackets(self):
+		self.assertEqual(find_square_brackets_pair('f[x]'), (1, 3))
 
 class SplitOptionalTest(unittest.TestCase):
 

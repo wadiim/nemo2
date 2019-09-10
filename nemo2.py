@@ -28,7 +28,7 @@ def split_translations(string):
 def parse_optional(seq):
 	i, seqlen = 0, len(seq)
 	while i < seqlen:
-		beg, end = find_brackets_pair(seq[i])
+		beg, end = find_parentheses_pair(seq[i])
 		if beg == -1 or end == -1:
 			i += 1
 			continue
@@ -39,14 +39,20 @@ def parse_optional(seq):
 		seqlen += 1
 	return seq
 
-def find_brackets_pair(string):
-	begin = find_non_escaped('(', string)
-	if begin == -1: return begin, find_non_escaped(')', string)
+def find_parentheses_pair(string):
+	return find_brackets_pair(string, '(', ')')
+
+def find_square_brackets_pair(string):
+	return find_brackets_pair(string, '[', ']')
+
+def find_brackets_pair(string, opening, closing):
+	begin = find_non_escaped(opening, string)
+	if begin == -1: return begin, find_non_escaped(closing, string)
 	end, ratio = -1, 1
 	for i in range(begin+1, len(string)):
 		if string[i-1] == '\\': continue
-		if string[i] == '(': ratio += 1
-		elif string[i] == ')': ratio -= 1
+		if string[i] == opening: ratio += 1
+		elif string[i] == closing: ratio -= 1
 		if ratio == 0:
 			end = i
 			break
