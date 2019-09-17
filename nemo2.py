@@ -16,7 +16,7 @@ def parse_line(line):
 	return text, translations
 
 def split_line(line):
-	splitted = re.split(r'(?<!\\)-', line, 1)
+	splitted = split_non_escaped(line, '-', 1)
 	text = splitted[0].strip()
 	translations = split_translations(splitted[1]) if len(splitted) > 1 else []
 	return text, translations
@@ -25,7 +25,7 @@ def split_translations(string):
 	alters = parse_substring_alternations(string)
 	trans = []
 	for alter in alters:
-		trans += parse_optional(re.split(r'(?<!\\)\|', alter))
+		trans += parse_optional(split_non_escaped(alter, '|'))
 	return [i.strip().replace('  ', ' ') for i in trans]
 
 def parse_substring_alternations(string):
@@ -45,7 +45,7 @@ def split_alternations(string):
 	alters = []
 	begin = ratio = 0
 	for i in range(len(string)):
-		if i and string[i-1] == '\\': continue
+		if is_escaped(i, string): continue
 		elif string[i] == '[': ratio += 1
 		elif string[i] == ']': ratio -= 1
 		elif string[i] == '|':
@@ -80,7 +80,7 @@ def find_brackets_pair(string, opening, closing):
 	if begin == -1: return begin, find_non_escaped(closing, string)
 	end, ratio = -1, 1
 	for i in range(begin+1, len(string)):
-		if string[i-1] == '\\': continue
+		if is_escaped(i, string): continue
 		if string[i] == opening: ratio += 1
 		elif string[i] == closing: ratio -= 1
 		if ratio == 0:
@@ -92,8 +92,28 @@ def find_non_escaped(char, string):
 	pos = -1
 	while True:
 		pos = string.find(char, pos+1)
-		if pos <= 0 or string[pos-1] != '\\': break
+		if not is_escaped(pos, string): break
 	return pos
+
+def is_escaped(pos, string):
+	index, bscount = pos-1, 0
+	while index >= 0 and string[index] == '\\':
+		bscount += 1
+		index -= 1
+	return bscount % 2
+
+def split_non_escaped(string, sep=None, maxsplit=None):
+	result_list = []
+	start = count = 0
+	for index, char in enumerate(string):
+		if not (sep and char == sep or not sep and char.isspace()): continue
+		if is_escaped(index, string): continue
+		if maxsplit and count >= maxsplit: break
+		result_list.append(string[start:index])
+		start = index + 1
+		count += 1
+	result_list.append(string[start:])
+	return result_list
 
 def split_optional(string, beg, end):
 	return remove_optional(string, beg, end), remove_brackets(string, beg, end)
@@ -105,7 +125,7 @@ def remove_brackets(string, f, s):
 	return string[:f] + string[f+1:s] + string[s+1:]
 
 def decode_string(string):
-	for c in '-|()[]': string = string.replace('\\' + c, c)
+	for c in '-|()[]\\': string = string.replace('\\' + c, c)
 	return string
 
 def run(lines):

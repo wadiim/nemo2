@@ -81,6 +81,21 @@ class ParseLineTest(unittest.TestCase):
 	def test_escaped_square_brackets(self):
 		self.assertEqual(parse_line('f\[x\]-g\[x\]'), ('f[x]', ['g[x]']))
 
+	def test_escaped_backslash(self):
+		self.assertEqual(parse_line('a\\\\b-c\\\\d'), ('a\\b', ['c\\d']))
+
+	def test_escaped_backslash_before_hyphen(self):
+		self.assertEqual(parse_line('foo\\\\-bar'), ('foo\\', ['bar']))
+
+	def test_escaped_backslash_before_pipe(self):
+		self.assertEqual(parse_line('x-y\\\\|z'), ('x', ['y\\', 'z']))
+
+	def test_escaped_backslash_before_parentheses(self):
+		self.assertEqual(parse_line('f\\\\(x\\\\)'), ('f\\(x\\)', []))
+
+	def test_escaped_backslash_before_square_brackets(self):
+		self.assertEqual(parse_line('f\\\\[x\\\\]'), ('f\\[x\\]', []))
+
 class FindBracketsPairTest(unittest.TestCase):
 
 	def test_empty_string(self):
@@ -117,6 +132,35 @@ class SplitOptionalTest(unittest.TestCase):
 
 	def test_splitting_optional(self):
 		self.assertEqual(split_optional('(a)b', 0, 2), ('b', 'ab'))
+
+class SplitNonEscaped(unittest.TestCase):
+
+	def test_empty_string(self):
+		self.assertEqual(split_non_escaped(''), [''])
+
+	def test_non_empty_string(self):
+		self.assertEqual(split_non_escaped('x y z'), ['x', 'y', 'z'])
+
+	def test_non_default_separator(self):
+		self.assertEqual(split_non_escaped('x,y,z', ','), ['x', 'y', 'z'])
+
+	def test_non_default_maxsplit(self):
+		self.assertEqual(split_non_escaped('x y z', maxsplit=1), ['x', 'y z'])
+
+	def test_maxsplit_equals_zero(self):
+		self.assertEqual(split_non_escaped('x y z', ' ', 0), ['x', 'y', 'z'])
+
+	def test_escaped_separator(self):
+		self.assertEqual(split_non_escaped('foo\ bar'), ['foo\ bar'])
+
+	def test_lack_of_separator(self):
+		self.assertEqual(split_non_escaped('foo'), ['foo'])
+
+	def test_string_starts_with_separator(self):
+		self.assertEqual(split_non_escaped('-foo', '-'), ['', 'foo'])
+
+	def test_string_ends_with_separator(self):
+		self.assertEqual(split_non_escaped('foo-', '-'), ['foo', ''])
 
 if __name__ == '__main__':
 	unittest.main()
