@@ -32,11 +32,11 @@ If the translations are mostly overlapping, merge them into one translation, enc
 ```
 hacks - h[a|4]x
 ```
-To turn off special meaning of `-`, `|`, `(` and `)` characters, precede them by backslash. When there are multiple non escaped hyphens, only the first one is treated specially.
+To turn off special meaning of `-`, `|`, `(`, `)`, `[`, `]` and `\`, precede them by backslash. When there are multiple non escaped hyphens, only the first one is treated specially.
 ```
 hacker - H4X0R3r | \|-\|4x0.-
 ```
-Whitespaces around `-` and `|` have no effect. Also leading and trailing whitespaces are ignored. Multiple spaces are treated as a single one.
+Whitespaces around `-` and `|` have no effect. Also leading and trailing whitespaces are ignored. Multiple spaces next to each other are treated as a single one.
 
 ## License
 
