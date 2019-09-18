@@ -5,7 +5,6 @@ import colorama
 import random
 import ctypes
 import sys
-import re
 
 if sys.version[0] == '2': input = raw_input
 
